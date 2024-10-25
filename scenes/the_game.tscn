@@ -1,6 +1,8 @@
-[gd_scene load_steps=11 format=3 uid="uid://cb2m4tpsggr31"]
+[gd_scene load_steps=23 format=3 uid="uid://cb2m4tpsggr31"]
 
 [ext_resource type="PackedScene" uid="uid://dv8tfvucnqtwp" path="res://scenes/player.tscn" id="1_fvb1p"]
+[ext_resource type="Script" path="res://scripts/door.gd" id="1_p5h11"]
+[ext_resource type="Script" path="res://scripts/unit_stats_resource.gd" id="2_vp1i6"]
 [ext_resource type="Script" path="res://scenes/camera_pivot.gd" id="2_vr3dy"]
 
 [sub_resource type="Gradient" id="Gradient_whhod"]
@@ -30,6 +32,68 @@ albedo_color = Color(0.255659, 0.255659, 0.255659, 1)
 material = SubResource("StandardMaterial3D_1d67c")
 size = Vector2(50, 50)
 
+[sub_resource type="BoxShape3D" id="BoxShape3D_o34td"]
+size = Vector3(6.87, 3.24, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_8nine"]
+albedo_color = Color(0.5907, 0.66, 0.2442, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_hj2so"]
+material = SubResource("StandardMaterial3D_8nine")
+size = Vector3(6.87, 3.24, 1)
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_rxb56"]
+radius = 4.67833
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_xi08w"]
+size = Vector3(5.875, 3.26, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_jwepv"]
+size = Vector3(5.875, 3.26, 1)
+
+[sub_resource type="Animation" id="Animation_eaqou"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("AnimatableBody3D:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0, 0, 0)]
+}
+
+[sub_resource type="Animation" id="Animation_jnrfu"]
+resource_name = "open"
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("AnimatableBody3D:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 1),
+"transitions": PackedFloat32Array(0.329877, 1),
+"update": 0,
+"values": [Vector3(0, 0, 0), Vector3(0, -1.78, 0)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_r0tkj"]
+_data = {
+"RESET": SubResource("Animation_eaqou"),
+"open": SubResource("Animation_jnrfu")
+}
+
+[sub_resource type="Resource" id="Resource_tekhk"]
+script = ExtResource("2_vp1i6")
+unit_name = "John"
+unit_description = "A good man"
+health = 100
+walk_speed = 8.0
+
 [node name="TheGame" type="Node3D"]
 
 [node name="Environment" type="Node3D" parent="."]
@@ -53,7 +117,60 @@ shape = SubResource("WorldBoundaryShape3D_o4fcd")
 transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0, 0)
 mesh = SubResource("QuadMesh_nmvb5")
 
+[node name="Wall" type="StaticBody3D" parent="WorldGeomtry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.54711, 0, -7.71022)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="WorldGeomtry/Wall"]
+shape = SubResource("BoxShape3D_o34td")
+metadata/_edit_lock_ = true
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="WorldGeomtry/Wall"]
+mesh = SubResource("BoxMesh_hj2so")
+metadata/_edit_lock_ = true
+
+[node name="Wall2" type="StaticBody3D" parent="WorldGeomtry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.4904, 0, -7.71022)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="WorldGeomtry/Wall2"]
+shape = SubResource("BoxShape3D_o34td")
+metadata/_edit_lock_ = true
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="WorldGeomtry/Wall2"]
+mesh = SubResource("BoxMesh_hj2so")
+metadata/_edit_lock_ = true
+
+[node name="Door" type="Node3D" parent="WorldGeomtry" node_paths=PackedStringArray("area", "anim_player", "door_node")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -7.71037)
+script = ExtResource("1_p5h11")
+area = NodePath("Area3D")
+anim_player = NodePath("AnimationPlayer")
+door_node = NodePath("AnimatableBody3D")
+
+[node name="Area3D" type="Area3D" parent="WorldGeomtry/Door"]
+collision_layer = 0
+collision_mask = 2
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="WorldGeomtry/Door/Area3D"]
+shape = SubResource("SphereShape3D_rxb56")
+
+[node name="AnimatableBody3D" type="AnimatableBody3D" parent="WorldGeomtry/Door"]
+sync_to_physics = false
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="WorldGeomtry/Door/AnimatableBody3D"]
+shape = SubResource("BoxShape3D_xi08w")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="WorldGeomtry/Door/AnimatableBody3D"]
+mesh = SubResource("BoxMesh_jwepv")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="WorldGeomtry/Door"]
+libraries = {
+"": SubResource("AnimationLibrary_r0tkj")
+}
+
 [node name="player" parent="." instance=ExtResource("1_fvb1p")]
+collision_layer = 2
+collision_mask = 5
+stats = SubResource("Resource_tekhk")
 
 [node name="CameraPivot" type="Node3D" parent="." node_paths=PackedStringArray("target")]
 script = ExtResource("2_vr3dy")

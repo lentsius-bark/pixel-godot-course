@@ -24,6 +24,12 @@ GameManager="*res://scripts/game_manager.gd"
 window/size/viewport_width=540
 window/size/viewport_height=960
 
+[layer_names]
+
+3d_physics/layer_1="world"
+3d_physics/layer_2="player"
+3d_physics/layer_3="traps"
+
 [rendering]
 
 renderer/rendering_method="mobile"

@@ -1,8 +1,9 @@
 extends CharacterBody3D
 
-
-const SPEED = 5.0
 const JUMP_VELOCITY = 4.5
+
+
+@export var stats : UnitStats
 
 
 func _physics_process(delta: float) -> void:
@@ -19,10 +20,10 @@ func _physics_process(delta: float) -> void:
 	var input_dir := Input.get_vector("ui_left", "ui_right", "ui_up", "ui_down")
 	var direction := (transform.basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
 	if direction:
-		velocity.x = direction.x * SPEED * 4
-		velocity.z = direction.z * SPEED * 4
+		velocity.x = direction.x * stats.walk_speed * 4
+		velocity.z = direction.z * stats.walk_speed * 4
 	else:
-		velocity.x = move_toward(velocity.x, 0, SPEED)
-		velocity.z = move_toward(velocity.z, 0, SPEED)
+		velocity.x = move_toward(velocity.x, 0, stats.walk_speed)
+		velocity.z = move_toward(velocity.z, 0, stats.walk_speed)
 
 	move_and_slide()
