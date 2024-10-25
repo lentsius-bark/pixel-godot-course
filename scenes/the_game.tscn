@@ -1,0 +1,63 @@
+[gd_scene load_steps=11 format=3 uid="uid://cb2m4tpsggr31"]
+
+[ext_resource type="PackedScene" uid="uid://dv8tfvucnqtwp" path="res://scenes/player.tscn" id="1_fvb1p"]
+[ext_resource type="Script" path="res://scenes/camera_pivot.gd" id="2_vr3dy"]
+
+[sub_resource type="Gradient" id="Gradient_whhod"]
+colors = PackedColorArray(0, 0, 0.113725, 1, 1, 0.802, 0.67, 1)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_58630"]
+gradient = SubResource("Gradient_whhod")
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_xf6ki"]
+
+[sub_resource type="Sky" id="Sky_iwhny"]
+sky_material = SubResource("ProceduralSkyMaterial_xf6ki")
+
+[sub_resource type="Environment" id="Environment_h7oum"]
+background_mode = 2
+sky = SubResource("Sky_iwhny")
+tonemap_mode = 3
+adjustment_enabled = true
+adjustment_color_correction = SubResource("GradientTexture1D_58630")
+
+[sub_resource type="WorldBoundaryShape3D" id="WorldBoundaryShape3D_o4fcd"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_1d67c"]
+albedo_color = Color(0.255659, 0.255659, 0.255659, 1)
+
+[sub_resource type="QuadMesh" id="QuadMesh_nmvb5"]
+material = SubResource("StandardMaterial3D_1d67c")
+size = Vector2(50, 50)
+
+[node name="TheGame" type="Node3D"]
+
+[node name="Environment" type="Node3D" parent="."]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="Environment"]
+environment = SubResource("Environment_h7oum")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="Environment"]
+transform = Transform3D(0.687297, 0.415364, -0.595899, 0.110326, 0.75116, 0.650835, 0.717949, -0.51306, 0.470445, 0, 9.96896, 0)
+shadow_enabled = true
+shadow_opacity = 0.38
+
+[node name="WorldGeomtry" type="Node3D" parent="."]
+
+[node name="Ground" type="StaticBody3D" parent="WorldGeomtry"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="WorldGeomtry/Ground"]
+shape = SubResource("WorldBoundaryShape3D_o4fcd")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="WorldGeomtry/Ground"]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0, 0)
+mesh = SubResource("QuadMesh_nmvb5")
+
+[node name="player" parent="." instance=ExtResource("1_fvb1p")]
+
+[node name="CameraPivot" type="Node3D" parent="." node_paths=PackedStringArray("target")]
+script = ExtResource("2_vr3dy")
+target = NodePath("../player")
+
+[node name="Camera3D" type="Camera3D" parent="CameraPivot"]
+transform = Transform3D(1, 0, 0, 0, 0.902435, 0.430826, 0, -0.430826, 0.902435, 0, 8.34728, 11.6318)
