@@ -5,6 +5,15 @@ const JUMP_VELOCITY = 4.5
 
 @export var stats : UnitStats
 
+var touch_velocity : Vector2
+
+func _ready() -> void:
+	SignalBus.touch_movement_registered.connect(on_touch_movement_registered)
+	
+	
+func on_touch_movement_registered(_velocity : Vector2) -> void:
+	touch_velocity = _velocity
+
 
 func _physics_process(delta: float) -> void:
 	# Add the gravity.
@@ -17,8 +26,8 @@ func _physics_process(delta: float) -> void:
 
 	# Get the input direction and handle the movement/deceleration.
 	# As good practice, you should replace UI actions with custom gameplay actions.
-	var input_dir := Input.get_vector("ui_left", "ui_right", "ui_up", "ui_down")
-	var direction := (transform.basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
+	var input_dir := Input.get_vector("left", "right", "up", "down") + touch_velocity
+	var direction := (transform.basis * Vector3(input_dir.x, 0, input_dir.y))#.normalized()
 	if direction:
 		velocity.x = direction.x * stats.walk_speed * 4
 		velocity.z = direction.z * stats.walk_speed * 4

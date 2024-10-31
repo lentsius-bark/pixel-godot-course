@@ -1,9 +1,10 @@
-[gd_scene load_steps=23 format=3 uid="uid://cb2m4tpsggr31"]
+[gd_scene load_steps=31 format=3 uid="uid://cb2m4tpsggr31"]
 
 [ext_resource type="PackedScene" uid="uid://dv8tfvucnqtwp" path="res://scenes/player.tscn" id="1_fvb1p"]
 [ext_resource type="Script" path="res://scripts/door.gd" id="1_p5h11"]
 [ext_resource type="Script" path="res://scripts/unit_stats_resource.gd" id="2_vp1i6"]
 [ext_resource type="Script" path="res://scenes/camera_pivot.gd" id="2_vr3dy"]
+[ext_resource type="Script" path="res://scripts/touch_control.gd" id="5_gjlo1"]
 
 [sub_resource type="Gradient" id="Gradient_whhod"]
 colors = PackedColorArray(0, 0, 0.113725, 1, 1, 0.802, 0.67, 1)
@@ -94,6 +95,98 @@ unit_description = "A good man"
 health = 100
 walk_speed = 8.0
 
+[sub_resource type="Gradient" id="Gradient_uo856"]
+interpolation_mode = 1
+offsets = PackedFloat32Array(0.757848, 0.914798, 1)
+colors = PackedColorArray(1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_xnogd"]
+gradient = SubResource("Gradient_uo856")
+width = 256
+height = 256
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(1, 0.5)
+metadata/_snap_enabled = true
+
+[sub_resource type="Gradient" id="Gradient_mooci"]
+interpolation_mode = 1
+offsets = PackedFloat32Array(0.914798, 1)
+colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_fkg2x"]
+gradient = SubResource("Gradient_mooci")
+width = 256
+height = 256
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(1, 0.5)
+metadata/_snap_enabled = true
+
+[sub_resource type="Shader" id="Shader_jlh1c"]
+code = "shader_type spatial;
+render_mode blend_mix, depth_draw_opaque, cull_back, diffuse_lambert, specular_schlick_ggx;
+
+instance uniform vec4 ColorParameter : source_color = vec4(1.000000, 1.000000, 1.000000, 1.000000);
+
+
+
+void vertex() {
+// Input:2
+	vec3 n_out2p0 = VERTEX;
+	float n_out2p1 = n_out2p0.r;
+	float n_out2p2 = n_out2p0.g;
+	float n_out2p3 = n_out2p0.b;
+
+
+// Input:5
+	float n_out5p0 = TIME;
+
+
+// FloatFunc:6
+	float n_out6p0 = sin(n_out5p0);
+
+
+// FloatOp:4
+	float n_out4p0 = n_out2p2 + n_out6p0;
+
+
+// VectorCompose:3
+	vec3 n_out3p0 = vec3(n_out2p1, n_out4p0, n_out2p3);
+
+
+// Output:0
+	VERTEX = n_out3p0;
+
+
+}
+
+void fragment() {
+// Input:2
+	vec2 n_out2p0 = UV;
+	float n_out2p1 = n_out2p0.r;
+
+// ColorParameter:3
+	vec4 n_out3p0 = ColorParameter;
+
+
+// VectorOp:4
+	vec3 n_out4p0 = vec3(n_out2p1) * vec3(n_out3p0.xyz);
+
+
+// Output:0
+	ALBEDO = n_out4p0;
+
+
+}
+"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_comhs"]
+render_priority = 0
+shader = SubResource("Shader_jlh1c")
+
+[sub_resource type="SphereMesh" id="SphereMesh_4xj10"]
+
 [node name="TheGame" type="Node3D"]
 
 [node name="Environment" type="Node3D" parent="."]
@@ -121,10 +214,12 @@ mesh = SubResource("QuadMesh_nmvb5")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.54711, 0, -7.71022)
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="WorldGeomtry/Wall"]
+rotation_edit_mode = 2
 shape = SubResource("BoxShape3D_o34td")
 metadata/_edit_lock_ = true
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="WorldGeomtry/Wall"]
+rotation_edit_mode = 2
 mesh = SubResource("BoxMesh_hj2so")
 metadata/_edit_lock_ = true
 
@@ -178,3 +273,76 @@ target = NodePath("../player")
 
 [node name="Camera3D" type="Camera3D" parent="CameraPivot"]
 transform = Transform3D(1, 0, 0, 0, 0.902435, 0.430826, 0, -0.430826, 0.902435, 0, 8.34728, 11.6318)
+
+[node name="UILayer" type="CanvasLayer" parent="."]
+
+[node name="UI" type="Control" parent="UILayer"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="TouchControl" type="Control" parent="UILayer/UI" node_paths=PackedStringArray("circle", "target_circle")]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("5_gjlo1")
+circle = NodePath("DragPointBG")
+target_circle = NodePath("DragPointBG/Control/DragStrength")
+
+[node name="DragPointBG" type="TextureRect" parent="UILayer/UI/TouchControl"]
+self_modulate = Color(1, 1, 1, 0.192157)
+texture_filter = 4
+offset_left = 165.0
+offset_top = 677.0
+offset_right = 300.0
+offset_bottom = 813.0
+mouse_filter = 2
+texture = SubResource("GradientTexture2D_xnogd")
+expand_mode = 5
+stretch_mode = 5
+
+[node name="Control" type="Control" parent="UILayer/UI/TouchControl/DragPointBG"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -20.0
+offset_right = 20.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="DragStrength" type="TextureRect" parent="UILayer/UI/TouchControl/DragPointBG/Control"]
+texture_filter = 4
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -26.5
+offset_top = -26.5
+offset_right = 26.5
+offset_bottom = 26.5
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = SubResource("GradientTexture2D_fkg2x")
+expand_mode = 5
+stretch_mode = 5
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(3.02862, 0, 0, 0, 3.02862, 0, 0, 0, 3.02862, 3.57008, 1.66076, -2.25717)
+material_override = SubResource("ShaderMaterial_comhs")
+instance_shader_parameters/ColorParameter = Color(1, 1, 1, 1)
+mesh = SubResource("SphereMesh_4xj10")
