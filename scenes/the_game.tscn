@@ -1,10 +1,12 @@
-[gd_scene load_steps=31 format=3 uid="uid://cb2m4tpsggr31"]
+[gd_scene load_steps=35 format=3 uid="uid://cb2m4tpsggr31"]
 
 [ext_resource type="PackedScene" uid="uid://dv8tfvucnqtwp" path="res://scenes/player.tscn" id="1_fvb1p"]
 [ext_resource type="Script" path="res://scripts/door.gd" id="1_p5h11"]
 [ext_resource type="Script" path="res://scripts/unit_stats_resource.gd" id="2_vp1i6"]
 [ext_resource type="Script" path="res://scenes/camera_pivot.gd" id="2_vr3dy"]
 [ext_resource type="Script" path="res://scripts/touch_control.gd" id="5_gjlo1"]
+[ext_resource type="Script" path="res://scripts/tools.gd" id="6_q43lf"]
+[ext_resource type="Texture2D" uid="uid://46cpe6pds8ef" path="res://icon.svg" id="7_hscpy"]
 
 [sub_resource type="Gradient" id="Gradient_whhod"]
 colors = PackedColorArray(0, 0, 0.113725, 1, 1, 0.802, 0.67, 1)
@@ -84,8 +86,8 @@ tracks/0/keys = {
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_r0tkj"]
 _data = {
-"RESET": SubResource("Animation_eaqou"),
-"open": SubResource("Animation_jnrfu")
+&"RESET": SubResource("Animation_eaqou"),
+&"open": SubResource("Animation_jnrfu")
 }
 
 [sub_resource type="Resource" id="Resource_tekhk"]
@@ -94,6 +96,15 @@ unit_name = "John"
 unit_description = "A good man"
 health = 100
 walk_speed = 8.0
+
+[sub_resource type="Curve3D" id="Curve3D_f46pl"]
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9.055, 0, 0, 0, 0, 0, 0, 5),
+"tilts": PackedFloat32Array(0, 0)
+}
+point_count = 2
+
+[sub_resource type="PrismMesh" id="PrismMesh_012ka"]
 
 [sub_resource type="Gradient" id="Gradient_uo856"]
 interpolation_mode = 1
@@ -259,13 +270,47 @@ mesh = SubResource("BoxMesh_jwepv")
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="WorldGeomtry/Door"]
 libraries = {
-"": SubResource("AnimationLibrary_r0tkj")
+&"": SubResource("AnimationLibrary_r0tkj")
 }
 
-[node name="player" parent="." instance=ExtResource("1_fvb1p")]
+[node name="player" parent="." node_paths=PackedStringArray("debug_label", "debug_raycast", "debug_path") instance=ExtResource("1_fvb1p")]
 collision_layer = 2
 collision_mask = 5
 stats = SubResource("Resource_tekhk")
+debug_label = NodePath("Label3D")
+debug_raycast = NodePath("RayCast3D")
+debug_path = NodePath("Path3D")
+
+[node name="Label3D" type="Label3D" parent="player"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.00119948, 1.91238, 0)
+visible = false
+billboard = 1
+no_depth_test = true
+text = "000"
+font_size = 92
+outline_size = 57
+uppercase = true
+autowrap_mode = 2
+width = 479.14
+
+[node name="RayCast3D" type="RayCast3D" parent="player"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2558, 0)
+target_position = Vector3(0, 0, 3.58)
+collision_mask = 0
+debug_shape_custom_color = Color(1, 0, 0, 1)
+debug_shape_thickness = 5
+
+[node name="Path3D" type="Path3D" parent="player"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.07017, 0)
+curve = SubResource("Curve3D_f46pl")
+
+[node name="PathFollow3D" type="PathFollow3D" parent="player/Path3D"]
+transform = Transform3D(-1, -8.74221e-08, -3.82152e-15, 0, -4.3711e-08, 1.00004, -8.74228e-08, 0.999992, 4.37131e-08, 0, -7.45058e-09, 5)
+visible = false
+progress = 26.7067
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="player/Path3D/PathFollow3D"]
+mesh = SubResource("PrismMesh_012ka")
 
 [node name="CameraPivot" type="Node3D" parent="." node_paths=PackedStringArray("target")]
 script = ExtResource("2_vr3dy")
@@ -298,6 +343,7 @@ target_circle = NodePath("DragPointBG/Control/DragStrength")
 [node name="DragPointBG" type="TextureRect" parent="UILayer/UI/TouchControl"]
 self_modulate = Color(1, 1, 1, 0.192157)
 texture_filter = 4
+layout_mode = 0
 offset_left = 165.0
 offset_top = 677.0
 offset_right = 300.0
@@ -346,3 +392,15 @@ transform = Transform3D(3.02862, 0, 0, 0, 3.02862, 0, 0, 0, 3.02862, 3.57008, 1.
 material_override = SubResource("ShaderMaterial_comhs")
 instance_shader_parameters/ColorParameter = Color(1, 1, 1, 1)
 mesh = SubResource("SphereMesh_4xj10")
+
+[node name="Tools" type="Node" parent="." node_paths=PackedStringArray("test_owner")]
+script = ExtResource("6_q43lf")
+test_owner = NodePath("../TestOwner")
+player_scene = ExtResource("1_fvb1p")
+run_function = null
+
+[node name="TestOwner" type="Node3D" parent="."]
+
+[node name="@Sprite3D@22538" type="Sprite3D" parent="TestOwner"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.58685, 0, 0)
+texture = ExtResource("7_hscpy")
